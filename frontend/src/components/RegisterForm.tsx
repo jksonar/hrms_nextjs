@@ -14,7 +14,7 @@ export default function RegisterForm() {
       return;
     }
     try {
-      const response = await fetch('/api/v1/register', {
+      const response = await fetch('http://localhost:8000/api/v1/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

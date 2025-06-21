@@ -15,10 +15,6 @@ from app.services import crud
 
 router = APIRouter()
 
-@router.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = authenticate_user(db, form_data.username, form_data.password) # form_data.username is used as email
-
 @router.post("/register", response_model=User)
 async def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
     user = crud.get_user_by_email(db, email=user_in.email)
@@ -29,6 +25,10 @@ async def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
         )
     user = crud.create_user(db, user=user_in)
     return user
+
+@router.post("/token", response_model=Token)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = authenticate_user(db, form_data.username, form_data.password) # form_data.username is used as email
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

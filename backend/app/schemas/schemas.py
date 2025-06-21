@@ -29,7 +29,7 @@ class User(UserBase):
     role: UserRole
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Employee Schemas
 class EmployeeBase(BaseModel):
@@ -80,7 +80,7 @@ class Employee(EmployeeBase):
     payroll_records: List["Payroll"] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Department Schemas
 class DepartmentBase(BaseModel):
