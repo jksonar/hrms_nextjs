@@ -1,30 +1,35 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional, List
 from datetime import date, datetime
 from decimal import Decimal
-from app.db.models import UserRole, EmploymentStatus, LeaveStatus, AttendanceStatus
+from typing import List, Optional
+
+from pydantic import BaseModel, EmailStr
+
+from app.db.models import AttendanceStatus, EmploymentStatus, LeaveStatus, UserRole
 
 # User Schemas
 class UserBase(BaseModel):
     email: EmailStr
-    role: UserRole = UserRole.EMPLOYEE
+
 
 class UserCreate(UserBase):
     password: str
+    role: Optional[UserRole] = UserRole.EMPLOYEE
+
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
-    role: Optional[UserRole] = None
+    password: Optional[str] = None
     is_active: Optional[bool] = None
+    role: Optional[UserRole] = None
+
 
 class User(UserBase):
     id: int
     is_active: bool
-    created_at: datetime
-    updated_at: datetime
+    role: UserRole
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 # Employee Schemas
 class EmployeeBase(BaseModel):
@@ -34,37 +39,48 @@ class EmployeeBase(BaseModel):
     phone: Optional[str] = None
     address: Optional[str] = None
     date_of_birth: Optional[date] = None
-    hire_date: date
+    hire_date: Optional[date] = date.today()
+    employment_status: Optional[EmploymentStatus] = EmploymentStatus.ACTIVE
     department_id: Optional[int] = None
     position_id: Optional[int] = None
     manager_id: Optional[int] = None
     salary: Optional[Decimal] = None
-    employment_status: EmploymentStatus = EmploymentStatus.ACTIVE
+
 
 class EmployeeCreate(EmployeeBase):
     user_id: int
 
-class EmployeeUpdate(BaseModel):
+
+class EmployeeUpdate(EmployeeBase):
+    employee_id: Optional[str] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
     date_of_birth: Optional[date] = None
+    hire_date: Optional[date] = None
+    employment_status: Optional[EmploymentStatus] = None
     department_id: Optional[int] = None
     position_id: Optional[int] = None
     manager_id: Optional[int] = None
     salary: Optional[Decimal] = None
-    employment_status: Optional[EmploymentStatus] = None
+
 
 class Employee(EmployeeBase):
     id: int
     user_id: int
     created_at: datetime
     updated_at: datetime
-    user: Optional[User] = None
+    department: Optional["Department"] = None
+    position: Optional["Position"] = None
+    manager: Optional["Employee"] = None
+    subordinates: List["Employee"] = []
+    attendance_records: List["Attendance"] = []
+    leave_requests: List["LeaveRequest"] = []
+    payroll_records: List["Payroll"] = []
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 # Department Schemas
 class DepartmentBase(BaseModel):

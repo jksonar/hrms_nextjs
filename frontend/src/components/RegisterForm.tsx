@@ -7,14 +7,36 @@ export default function RegisterForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-    // Handle registration logic here
-    console.log("Registration attempt with:", { email, password });
+    try {
+      const response = await fetch('/api/v1/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Registration successful:', data);
+        alert('Registration successful! You can now log in.');
+        // Optionally redirect to login page
+        // router.push('/login');
+      } else {
+        const errorData = await response.json();
+        console.error('Registration failed:', errorData);
+        alert(`Registration failed: ${errorData.detail || 'An error occurred'}`);
+      }
+    } catch (error) {
+      console.error('Error during registration:', error);
+      alert('An error occurred during registration. Please try again.');
+    }
   };
 
   return (

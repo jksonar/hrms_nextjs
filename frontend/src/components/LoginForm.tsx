@@ -8,13 +8,31 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log('Login submitted:', { email, password });
-    // For demonstration, redirect to a dashboard or home page after login
-    // In a real application, you would verify credentials with a backend API
-    router.push('/dashboard');
+    try {
+      const response = await fetch('/api/v1/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Login successful:', data);
+        // Store token or user info if needed
+        router.push('/dashboard');
+      } else {
+        const errorData = await response.json();
+        console.error('Login failed:', errorData);
+        alert(`Login failed: ${errorData.detail || 'Invalid credentials'}`);
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      alert('An error occurred during login. Please try again.');
+    }
   };
 
   return (

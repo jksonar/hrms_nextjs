@@ -1,7 +1,11 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Decimal, Date, Enum
+from datetime import date, datetime
+import enum
+from datetime import date
+from sqlalchemy import Boolean, Column, Date, DateTime, Enum, ForeignKey, Integer, Numeric, String, Text
+
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-import enum
+
 from app.db.database import Base
 
 # Enums
@@ -34,44 +38,41 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
-    role = Column(Enum(UserRole), default=UserRole.EMPLOYEE)
+    email = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
-    
-    # Relationships
+    role = Column(Enum(UserRole), default=UserRole.EMPLOYEE, nullable=False)
+
     employee = relationship("Employee", back_populates="user", uselist=False)
+
 
 class Employee(Base):
     __tablename__ = "employees"
-    
+
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
-    employee_id = Column(String, unique=True, index=True)
-    first_name = Column(String, index=True)
-    last_name = Column(String, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    employee_id = Column(String, unique=True, index=True, nullable=False)
+    first_name = Column(String, index=True, nullable=False)
+    last_name = Column(String, index=True, nullable=False)
     phone = Column(String)
     address = Column(Text)
     date_of_birth = Column(Date)
-    hire_date = Column(Date)
+    hire_date = Column(Date, default=date.today)
+    employment_status = Column(Enum(EmploymentStatus), default=EmploymentStatus.ACTIVE)
     department_id = Column(Integer, ForeignKey("departments.id"))
     position_id = Column(Integer, ForeignKey("positions.id"))
     manager_id = Column(Integer, ForeignKey("employees.id"))
-    salary = Column(Decimal(10, 2))
-    employment_status = Column(Enum(EmploymentStatus), default=EmploymentStatus.ACTIVE)
+    salary = Column(Numeric(10, 2))
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
-    
-    # Relationships
+
     user = relationship("User", back_populates="employee")
-    department = relationship("Department", back_populates="employees")
+    department = relationship("Department", back_populates="employees", foreign_keys=[department_id])
     position = relationship("Position", back_populates="employees")
-    manager = relationship("Employee", remote_side=[id], back_populates="subordinates")
-    subordinates = relationship("Employee", back_populates="manager")
+    manager = relationship("Employee", remote_side=[id], back_populates="subordinates", foreign_keys=[manager_id])
+    subordinates = relationship("Employee", back_populates="manager", foreign_keys=[manager_id])
     attendance_records = relationship("Attendance", back_populates="employee")
-    leave_requests = relationship("LeaveRequest", back_populates="employee")
+    leave_requests = relationship("LeaveRequest", back_populates="employee", foreign_keys="LeaveRequest.employee_id")
     payroll_records = relationship("Payroll", back_populates="employee")
 
 class Department(Base):
@@ -84,7 +85,7 @@ class Department(Base):
     created_at = Column(DateTime, default=func.now())
     
     # Relationships
-    employees = relationship("Employee", back_populates="department")
+    employees = relationship("Employee", back_populates="department", foreign_keys="Employee.department_id")
     head = relationship("Employee", foreign_keys=[head_id])
 
 class Position(Base):
@@ -94,8 +95,8 @@ class Position(Base):
     title = Column(String, index=True)
     description = Column(Text)
     department_id = Column(Integer, ForeignKey("departments.id"))
-    min_salary = Column(Decimal(10, 2))
-    max_salary = Column(Decimal(10, 2))
+    min_salary = Column(Numeric(10, 2))
+    max_salary = Column(Numeric(10, 2))
     created_at = Column(DateTime, default=func.now())
     
     # Relationships
@@ -142,10 +143,10 @@ class Payroll(Base):
     employee_id = Column(Integer, ForeignKey("employees.id"))
     pay_period_start = Column(Date)
     pay_period_end = Column(Date)
-    gross_salary = Column(Decimal(10, 2))
-    deductions = Column(Decimal(10, 2), default=0)
-    net_salary = Column(Decimal(10, 2))
-    tax_deduction = Column(Decimal(10, 2), default=0)
+    gross_salary = Column(Numeric(10, 2))
+    deductions = Column(Numeric(10, 2), default=0)
+    net_salary = Column(Numeric(10, 2))
+    tax_deduction = Column(Numeric(10, 2), default=0)
     created_at = Column(DateTime, default=func.now())
     
     # Relationships

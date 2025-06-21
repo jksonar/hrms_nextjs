@@ -1,16 +1,37 @@
 'use client';
 
-import React from 'react';
+import { redirect } from 'next/navigation';
+
+// This is a placeholder for actual role-based logic.
+// In a real application, you would fetch the user's role from an authentication context or API.
+const getUserRole = () => {
+  // For demonstration purposes, let's assume a default role or fetch from a mock API/context
+  // Possible roles: 'employee', 'manager', 'hr', 'admin'
+  // You would replace this with actual authentication and role management logic
+  return 'employee'; // Defaulting to employee for now
+};
 
 const DashboardPage = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="p-8 bg-white rounded shadow-md w-full max-w-md text-center">
-        <h1 className="text-2xl font-bold mb-6">HRMS Dashboard</h1>
-        <p>Welcome to your dashboard! More content coming soon.</p>
-      </div>
-    </div>
-  );
+  const userRole = getUserRole();
+
+  switch (userRole) {
+    case 'employee':
+      redirect('/dashboard/employee');
+      break;
+    case 'manager':
+      redirect('/dashboard/manager');
+      break;
+    case 'hr':
+      redirect('/dashboard/hr');
+      break;
+    case 'admin':
+      redirect('/dashboard/admin');
+      break;
+    default:
+      redirect('/login'); // Redirect to login if role is not recognized
+  }
+
+  return null; // Will not render anything as it redirects
 };
 
 export default DashboardPage;

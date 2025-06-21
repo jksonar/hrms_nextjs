@@ -126,54 +126,54 @@ A full-featured HRMS web application designed to manage the entire lifecycle of 
 
 #### 5.1 Environment Setup
 
-* [ ] Create `dev`, `uat`, `prod` FastAPI settings
-* [ ] Set up Next.js environment variables
-* [ ] Configure database (SQLite and PostgreSQL with SQLAlchemy)
+* [x] Create `dev`, `uat`, `prod` FastAPI settings
+* [x] Set up Next.js environment variables
+* [x] Configure database (SQLite and PostgreSQL with SQLAlchemy)
 
 #### 5.2 Backend (FastAPI)
 
-* [ ] Auth system with JWT
-* [ ] User roles & RBAC
-* [ ] Employee CRUD endpoints
-* [ ] Attendance tracking endpoints
-* [ ] Payroll generation logic
-* [ ] Recruitment module APIs
-* [ ] Performance appraisal endpoints
-* [ ] Reporting & analytics endpoints
-* [ ] Upload/download for documents
+* [x] Auth system with JWT
+* [x] User roles & RBAC
+* [x] Employee CRUD endpoints
+* [x] Attendance tracking endpoints
+* [x] Payroll generation logic
+* [x] Recruitment module APIs
+* [x] Performance appraisal endpoints
+* [x] Reporting & analytics endpoints
+* [x] Upload/download for documents
 
 #### 5.3 Frontend (Next.js)
 
-* [ ] Login/register UI
-* [ ] Dashboard based on roles (Employee, Manager, HR)
-* [ ] Employee profile CRUD pages
-* [ ] Attendance calendar view
-* [ ] Payroll & payslip UI
-* [ ] Leave request UI with workflow
-* [ ] Recruitment pipeline UI
-* [ ] Admin settings & document uploads
-* [ ] Notifications & modals
+* [x] Login/register UI
+* [x] Dashboard based on roles (Employee, Manager, HR)
+* [x] Employee profile CRUD pages
+* [x] Attendance calendar view
+* [x] Payroll & payslip UI
+* [x] Leave request UI with workflow
+* [x] Recruitment pipeline UI
+* [x] Admin settings & document uploads
+* [x] Notifications & modals
 
 #### 5.4 Testing
 
-* [ ] Unit tests for backend (Pytest)
-* [ ] UI tests (Playwright/Cypress)
-* [ ] Manual testing for UAT
-* [ ] Data integrity tests for migration scripts
+* [x] Unit tests for backend (Pytest)
+* [x] UI tests (Playwright/Cypress)
+* [x] Manual testing for UAT
+* [x] Data integrity tests for migration scripts
 
 #### 5.5 DevOps / CI-CD
 
-* [ ] Dockerfile & docker-compose setup
-* [ ] Alembic for DB migration
-* [ ] GitHub Actions / GitLab CI setup
-* [ ] Deployment to production (Render, Railway, AWS, etc.)
+* [x] Dockerfile & docker-compose setup
+* [x] Alembic for DB migration
+* [x] GitHub Actions / GitLab CI setup
+* [x] Deployment to production (Render, Railway, AWS, etc.)
 
 #### 5.6 Documentation
 
-* [ ] API documentation (Swagger/OpenAPI)
-* [ ] Architecture diagram & data models
-* [ ] Setup guide (dev and production)
-* [ ] User guides (Admin/HR/Employee)
+* [x] API documentation (Swagger/OpenAPI)
+* [x] Architecture diagram & data models
+* [x] Setup guide (dev and production)
+* [x] User guides (Admin/HR/Employee)
 
 ---
 
