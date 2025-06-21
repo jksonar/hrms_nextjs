@@ -36,7 +36,7 @@ Follow these instructions to set up and run the project locally.
     ```
 4.  Run database migrations:
     ```bash
-    alembic upgrade head
+    python -m alembic upgrade head
     ```
 5.  Run the initial data script to create an admin user:
     ```bash
@@ -44,7 +44,7 @@ Follow these instructions to set up and run the project locally.
     ```
 6.  Start the FastAPI application:
     ```bash
-    uvicorn app.main:app --reload
+    python -m uvicorn app.main:app --reload
     ```
     The backend will be accessible at `http://localhost:8000`.
 
@@ -87,6 +87,26 @@ Follow these instructions to set up and run the project locally.
 ## Database
 
 The project uses SQLite for the database, with the database file located at `backend/app.db`.
+
+## Troubleshooting
+
+If you encounter issues with the database (e.g., `no such table` errors or `Table 'X' is already defined` errors), you can try the following steps to reset your database:
+
+1.  **Delete the existing database file**:
+    ```bash
+    rm backend/app.db # On macOS/Linux
+    del backend\app.db # On Windows
+    ```
+2.  **Re-run database migrations**:
+    Navigate to the `backend` directory and run:
+    ```bash
+    python -m alembic upgrade head
+    ```
+3.  **Re-run the initial data script**:
+    Navigate to the `backend` directory and run:
+    ```bash
+    python initial_data.py
+    ```
 
 ## Contributing
 
