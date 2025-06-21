@@ -1,10 +1,9 @@
 from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.schemas.user import UserCreate, User
+from app.schemas.schemas import UserCreate, User
 from app.services import crud
 from app.core.security import get_current_active_user
 from app.db.models import User as DBUser
