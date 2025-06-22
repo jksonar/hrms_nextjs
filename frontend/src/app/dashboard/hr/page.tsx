@@ -1,12 +1,10 @@
-import React from 'react';
+import DashboardLayout from "@/components/DashboardLayout";
 
-const HRDashboardPage = () => {
+export default function HRDashboard() {
   return (
-    <div>
-      <h1>HR Dashboard</h1>
-      <p>This is the HR-specific dashboard content.</p>
-    </div>
+    <DashboardLayout>
+      <h1 className="text-2xl font-bold">HR Dashboard</h1>
+      <p>Welcome to the HR dashboard. Manage employees, payroll, and other HR functions.</p>
+    </DashboardLayout>
   );
-};
-
-export default HRDashboardPage;
+}

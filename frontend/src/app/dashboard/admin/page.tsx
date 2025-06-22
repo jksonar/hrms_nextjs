@@ -1,12 +1,10 @@
-import React from 'react';
+import DashboardLayout from "@/components/DashboardLayout";
 
-const AdminSettingsPage = () => {
+export default function AdminDashboard() {
   return (
-    <div>
-      <h1>Admin Settings & Document Uploads</h1>
-      <p>This page will contain admin settings and document upload functionalities.</p>
-    </div>
+    <DashboardLayout>
+      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+      <p>Welcome to the Admin dashboard. Manage users, settings, and overall system.</p>
+    </DashboardLayout>
   );
-};
-
-export default AdminSettingsPage;
+}

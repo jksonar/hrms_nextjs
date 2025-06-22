@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +25,7 @@ export default function LoginForm() {
       if (response.ok) {
         const data = await response.json();
         console.log('Login successful:', data);
-        // Store token or user info if needed
+        login(data.access_token);
         router.push('/dashboard');
       } else {
         const errorData = await response.json();

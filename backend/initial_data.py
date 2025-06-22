@@ -24,7 +24,7 @@ def init_db():
             print("Creating admin user...")
             admin_user = UserCreate(
                 email=admin_email,
-                password="admin_password", # Placeholder, as ADMIN_PASSWORD is not in config
+                password="admin_password",
                 is_active=True,
                 role="admin"
             )
@@ -32,6 +32,54 @@ def init_db():
             print("Admin user created.")
         else:
             print("Admin user already exists.")
+
+        # Create manager user
+        manager_email = "manager@example.com"
+        db_manager = db.query(models.User).filter(models.User.email == manager_email).first()
+        if not db_manager:
+            print("Creating manager user...")
+            manager_user = UserCreate(
+                email=manager_email,
+                password="manager_password",
+                is_active=True,
+                role="manager"
+            )
+            create_user(db, manager_user)
+            print("Manager user created.")
+        else:
+            print("Manager user already exists.")
+
+        # Create employee user
+        employee_email = "employee@example.com"
+        db_employee = db.query(models.User).filter(models.User.email == employee_email).first()
+        if not db_employee:
+            print("Creating employee user...")
+            employee_user = UserCreate(
+                email=employee_email,
+                password="employee_password",
+                is_active=True,
+                role="employee"
+            )
+            create_user(db, employee_user)
+            print("Employee user created.")
+        else:
+            print("Employee user already exists.")
+
+        # Create HR user
+        hr_email = "hr@example.com"
+        db_hr = db.query(models.User).filter(models.User.email == hr_email).first()
+        if not db_hr:
+            print("Creating HR user...")
+            hr_user = UserCreate(
+                email=hr_email,
+                password="hr_password",
+                is_active=True,
+                role="hr"
+            )
+            create_user(db, hr_user)
+            print("HR user created.")
+        else:
+            print("HR user already exists.")
     except Exception as e:
         print(f"Error during database initialization: {e}")
     finally:

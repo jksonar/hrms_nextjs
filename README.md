@@ -88,6 +88,33 @@ Follow these instructions to set up and run the project locally.
 
 The project uses SQLite for the database, with the database file located at `backend/app.db`.
 
+## Useful Commands
+
+Here are some additional commands that might be useful during development:
+
+-   **Install Frontend Dependencies**:
+    ```bash
+    cd frontend
+    npm install
+    ```
+
+-   **Build Frontend Project (includes TypeScript check)**:
+    ```bash
+    cd frontend
+    npm run build
+    ```
+
+-   **Check TypeScript Errors (without building)**:
+    ```bash
+    cd frontend
+    npx tsc --noEmit
+    ```
+
+-   **Clean npm cache (use with caution)**:
+    ```bash
+    npm cache clean --force
+    ```
+
 ## Troubleshooting
 
 If you encounter issues with the database (e.g., `no such table` errors or `Table 'X' is already defined` errors), you can try the following steps to reset your database:

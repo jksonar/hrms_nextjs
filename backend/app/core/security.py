@@ -9,7 +9,7 @@ from pydantic import ValidationError
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.db.database import get_db
-from app.db.models import User
+from app.db.models import User, UserRole
 from app.schemas.token import TokenData
 from app.services import crud
 from app.core.hashing import verify_password, get_password_hash
@@ -67,3 +67,13 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
+def role_required(allowed_roles: list[UserRole]):
+    async def role_checker(current_user: User = Depends(get_current_active_user)):
+        if current_user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not enough permissions"
+            )
+        return current_user
+    return role_checker

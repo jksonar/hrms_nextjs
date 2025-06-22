@@ -1,12 +1,10 @@
-import React from 'react';
+import DashboardLayout from "@/components/DashboardLayout";
 
-const NotificationsPage = () => {
+export default function NotificationsPage() {
   return (
-    <div>
-      <h1>Notifications & Modals</h1>
-      <p>This page will contain notifications and modal examples.</p>
-    </div>
+    <DashboardLayout>
+      <h1 className="text-2xl font-bold">Notifications</h1>
+      <p>View your notifications.</p>
+    </DashboardLayout>
   );
-};
-
-export default NotificationsPage;
+}

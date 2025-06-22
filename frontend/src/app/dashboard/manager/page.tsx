@@ -1,12 +1,11 @@
 import React from 'react';
+import DashboardLayout from '@/components/DashboardLayout';
 
-const ManagerDashboardPage = () => {
+export default function ManagerDashboard() {
   return (
-    <div>
-      <h1>Manager Dashboard</h1>
-      <p>This is the manager-specific dashboard content.</p>
-    </div>
+    <DashboardLayout>
+      <h1 className="text-2xl font-bold">Manager Dashboard</h1>
+      <p>Welcome to the Manager dashboard. Oversee your team and projects.</p>
+    </DashboardLayout>
   );
-};
-
-export default ManagerDashboardPage;
+}

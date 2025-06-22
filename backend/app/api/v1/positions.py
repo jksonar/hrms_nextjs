@@ -1,4 +1,5 @@
 from typing import List
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -6,40 +7,41 @@ from app.db.database import get_db
 from app.schemas.schemas import PositionCreate, PositionUpdate, Position
 from app.services import crud
 from app.core.security import get_current_active_user
-from app.db.models import User as DBUser
+from app.db.models import User as DBUser, UserRole
+from app.core.security import role_required
 
 router = APIRouter()
 
-@router.post("/positions/", response_model=Position, status_code=status.HTTP_201_CREATED)
-def create_position(position: PositionCreate, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_active_user)):
+@router.post("/positions/", response_model=Position, status_code=status.HTTP_201_CREATED, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR]))])
+def create_position(position: PositionCreate, db: Session = Depends(get_db)):
     return crud.create_position(db=db, position=position)
 
-@router.get("/positions/", response_model=List[Position])
-def read_positions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_active_user)):
+@router.get("/positions/", response_model=List[Position], dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER, UserRole.EMPLOYEE]))])
+def read_positions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     positions = crud.get_positions(db, skip=skip, limit=limit)
     return positions
 
-@router.get("/positions/department/{department_id}", response_model=List[Position])
-def read_positions_by_department(department_id: int, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_active_user)):
+@router.get("/positions/department/{department_id}", response_model=List[Position], dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER, UserRole.EMPLOYEE]))])
+def read_positions_by_department(department_id: int, db: Session = Depends(get_db)):
     positions = crud.get_positions_by_department(db, department_id=department_id)
     return positions
 
-@router.get("/positions/{position_id}", response_model=Position)
-def read_position(position_id: int, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_active_user)):
+@router.get("/positions/{position_id}", response_model=Position, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER, UserRole.EMPLOYEE]))])
+def read_position(position_id: int, db: Session = Depends(get_db)):
     db_position = crud.get_position(db, position_id=position_id)
     if db_position is None:
         raise HTTPException(status_code=404, detail="Position not found")
     return db_position
 
-@router.put("/positions/{position_id}", response_model=Position)
-def update_position(position_id: int, position: PositionUpdate, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_active_user)):
+@router.put("/positions/{position_id}", response_model=Position, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR]))])
+def update_position(position_id: int, position: PositionUpdate, db: Session = Depends(get_db)):
     db_position = crud.get_position(db, position_id=position_id)
     if db_position is None:
         raise HTTPException(status_code=404, detail="Position not found")
     return crud.update_position(db=db, position_id=position_id, position=position)
 
-@router.delete("/positions/{position_id}")
-def delete_position(position_id: int, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_active_user)):
+@router.delete("/positions/{position_id}", dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR]))])
+def delete_position(position_id: int, db: Session = Depends(get_db)):
     db_position = crud.get_position(db, position_id=position_id)
     if db_position is None:
         raise HTTPException(status_code=404, detail="Position not found")

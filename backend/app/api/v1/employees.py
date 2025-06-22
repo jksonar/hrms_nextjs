@@ -1,5 +1,6 @@
 from typing import List
 
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -8,24 +9,21 @@ from app.db.database import get_db
 from app.db.models import Employee as DBEmployee, User as DBUser, UserRole
 from app.schemas.schemas import Employee, EmployeeCreate, EmployeeUpdate
 from app.services import crud
+from app.core.security import role_required
 
 router = APIRouter()
 
 
-@router.post("/", response_model=Employee, status_code=status.HTTP_201_CREATED)
-def create_employee(employee: EmployeeCreate, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_active_user)):
-    if current_user.role not in [UserRole.ADMIN, UserRole.HR]:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
+@router.post("/", response_model=Employee, status_code=status.HTTP_201_CREATED, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR]))])
+def create_employee(employee: EmployeeCreate, db: Session = Depends(get_db)):
     db_employee = crud.get_employee_by_user_id(db, user_id=employee.user_id)
     if db_employee:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Employee with this user ID already exists")
     return crud.create_employee(db=db, employee=employee)
 
 
-@router.get("/", response_model=List[Employee])
-def read_employees(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_active_user)):
-    if current_user.role not in [UserRole.ADMIN, UserRole.HR, UserRole.MANAGER]:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
+@router.get("/", response_model=List[Employee], dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER]))])
+def read_employees(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     employees = crud.get_employees(db, skip=skip, limit=limit)
     return employees
 
@@ -57,13 +55,11 @@ def update_employee(employee_id: int, employee: EmployeeUpdate, db: Session = De
     db_employee = crud.get_employee(db, employee_id=employee_id)
     if db_employee is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
-    return crud.update_employee(db=db, db_employee=db_employee, employee_in=employee)
+    return crud.update_employee(db=db, employee_id=employee_id, employee=employee)
 
 
-@router.delete("/{employee_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_employee(employee_id: int, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_active_user)):
-    if current_user.role not in [UserRole.ADMIN, UserRole.HR]:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
+@router.delete("/{employee_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR]))])
+def delete_employee(employee_id: int, db: Session = Depends(get_db)):
     employee = crud.get_employee(db, employee_id=employee_id)
     if employee is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")

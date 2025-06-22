@@ -1,12 +1,10 @@
-import React from 'react';
+import DashboardLayout from "@/components/DashboardLayout";
 
-const LeaveRequestPage = () => {
+export default function LeavePage() {
   return (
-    <div>
-      <h1>Leave Request UI with Workflow</h1>
-      <p>This page will contain the leave request forms and workflow.</p>
-    </div>
+    <DashboardLayout>
+      <h1 className="text-2xl font-bold">Leave Management</h1>
+      <p>Manage employee leave.</p>
+    </DashboardLayout>
   );
-};
-
-export default LeaveRequestPage;
+}

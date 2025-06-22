@@ -1,12 +1,10 @@
-import React from 'react';
+import DashboardLayout from "@/components/DashboardLayout";
 
-const RecruitmentPipelinePage = () => {
+export default function RecruitmentPage() {
   return (
-    <div>
-      <h1>Recruitment Pipeline UI</h1>
-      <p>This page will contain the recruitment pipeline management.</p>
-    </div>
+    <DashboardLayout>
+      <h1 className="text-2xl font-bold">Recruitment</h1>
+      <p>Manage job postings and applications.</p>
+    </DashboardLayout>
   );
-};
-
-export default RecruitmentPipelinePage;
+}
