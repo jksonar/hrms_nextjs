@@ -37,6 +37,7 @@ class AttendanceStatus(enum.Enum):
 class User(Base):
     __tablename__ = "users"
 
+
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
@@ -48,6 +49,7 @@ class User(Base):
 
 class Employee(Base):
     __tablename__ = "employees"
+
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
@@ -77,6 +79,7 @@ class Employee(Base):
 
 class Department(Base):
     __tablename__ = "departments"
+
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
@@ -90,6 +93,7 @@ class Department(Base):
 
 class Position(Base):
     __tablename__ = "positions"
+
     
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
@@ -104,6 +108,7 @@ class Position(Base):
 
 class Attendance(Base):
     __tablename__ = "attendance"
+
     
     id = Column(Integer, primary_key=True, index=True)
     employee_id = Column(Integer, ForeignKey("employees.id"))
@@ -119,6 +124,7 @@ class Attendance(Base):
 
 class LeaveRequest(Base):
     __tablename__ = "leave_requests"
+
     
     id = Column(Integer, primary_key=True, index=True)
     employee_id = Column(Integer, ForeignKey("employees.id"))
@@ -138,6 +144,7 @@ class LeaveRequest(Base):
 
 class Payroll(Base):
     __tablename__ = "payroll"
+
     
     id = Column(Integer, primary_key=True, index=True)
     employee_id = Column(Integer, ForeignKey("employees.id"))

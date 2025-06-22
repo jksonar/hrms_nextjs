@@ -2,15 +2,11 @@ import time
 import os
 import sys
 
-# Add the parent directory to the sys.path to allow imports from the app module
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'app')))
-
-import db.models # Re-add this import at the top level
-
-from db.database import SessionLocal
-from core.config import settings
-from schemas.schemas import UserCreate
-from services.crud import create_user
+from app.db import models
+from app.db.database import SessionLocal, Base, engine
+from app.core.config import settings
+from app.schemas.schemas import UserCreate
+from app.services.crud import create_user
 
 print(f"Current working directory: {os.getcwd()}")
 print(f"DATABASE_URL from settings: {settings.DATABASE_URL}")
@@ -18,11 +14,12 @@ print(f"DATABASE_URL from settings: {settings.DATABASE_URL}")
 def init_db():
     # User model is implicitly imported via schemas.schemas
     # Removed: from db.models import User # Re-add this import here to ensure User is defined within the function scope
+    Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
         # Check if admin user exists
         admin_email = settings.ADMIN_EMAIL
-        db_admin = db.query(db.models.User).filter(db.models.User.email == admin_email).first()
+        db_admin = db.query(models.User).filter(models.User.email == admin_email).first()
         if not db_admin:
             print("Creating admin user...")
             admin_user = UserCreate(
