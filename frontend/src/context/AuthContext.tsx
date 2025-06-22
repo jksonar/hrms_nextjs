@@ -4,11 +4,13 @@ import React, { createContext, useState, useContext, useEffect, ReactNode } from
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 
-interface AuthContextType {
+export interface AuthContextType {
+
   user: { role: string; id: string; email: string } | null;
   login: (token: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  accessToken: string | null;
   hasRole: (roles: string[]) => boolean;
 }
 
@@ -17,6 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<{ role: string; id: string; email: string } | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -31,6 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (decodedToken.exp * 1000 > Date.now()) {
           setUser({ role: userRole, id: userId, email: userEmail });
           setIsAuthenticated(true);
+          setAccessToken(token);
         } else {
           // Token expired
           logout();
@@ -42,6 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setIsAuthenticated(false);
       setUser(null);
+      setAccessToken(null);
     }
   }, []);
 
@@ -53,12 +58,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('user_email', decodedToken.email);
     setUser({ role: decodedToken.role, id: decodedToken.sub, email: decodedToken.email });
     setIsAuthenticated(true);
+    setAccessToken(token);
   };
 
   const logout = () => {
     localStorage.clear();
     setUser(null);
     setIsAuthenticated(false);
+    setAccessToken(null);
     router.push('/login');
   };
 
@@ -68,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, hasRole }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, accessToken, hasRole }}>
       {children}
     </AuthContext.Provider>
   );

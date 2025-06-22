@@ -12,7 +12,7 @@ from app.core.security import role_required
 
 router = APIRouter()
 
-@router.post("/positions/", response_model=Position, status_code=status.HTTP_201_CREATED, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR]))])
+@router.post("/positions/", response_model=Position, status_code=status.HTTP_201_CREATED, dependencies=[Depends(role_required([UserRole.ADMIN]))])
 def create_position(position: PositionCreate, db: Session = Depends(get_db)):
     return crud.create_position(db=db, position=position)
 
@@ -33,14 +33,14 @@ def read_position(position_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Position not found")
     return db_position
 
-@router.put("/positions/{position_id}", response_model=Position, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR]))])
+@router.put("/positions/{position_id}", response_model=Position, dependencies=[Depends(role_required([UserRole.ADMIN]))])
 def update_position(position_id: int, position: PositionUpdate, db: Session = Depends(get_db)):
     db_position = crud.get_position(db, position_id=position_id)
     if db_position is None:
         raise HTTPException(status_code=404, detail="Position not found")
     return crud.update_position(db=db, position_id=position_id, position=position)
 
-@router.delete("/positions/{position_id}", dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR]))])
+@router.delete("/positions/{position_id}", dependencies=[Depends(role_required([UserRole.ADMIN]))])
 def delete_position(position_id: int, db: Session = Depends(get_db)):
     db_position = crud.get_position(db, position_id=position_id)
     if db_position is None:

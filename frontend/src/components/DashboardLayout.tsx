@@ -1,5 +1,6 @@
+'use client';
 import React from 'react';
- import Link from 'next/link';
+import Link from 'next/link';
 import { ReactNode } from 'react';
 import {
   FaTachometerAlt,
@@ -41,7 +42,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         </div>
         <nav className="flex-1 p-4 space-y-2">
           {navItems.map((item) => {
-            if (item.roles.includes(userRole)) {
+            if (item.roles.includes(userRole.toUpperCase())) {
               return (
                 <Link key={item.name} href={item.href} className="flex items-center py-2 px-4 rounded hover:bg-gray-700">
                   <item.icon className="mr-3" />

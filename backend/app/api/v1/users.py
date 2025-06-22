@@ -29,7 +29,7 @@ def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = crud.get_users(db, skip=skip, limit=limit)
     return users
 
-@router.get("/{user_id}", response_model=User)
+@router.get("/{user_id}", response_model=User, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.EMPLOYEE, UserRole.MANAGER, UserRole.HR]))])
 def read_user(user_id: int, db: Session = Depends(get_db),
               current_user: DBUser = Depends(get_current_active_user)):
     if current_user.role != UserRole.ADMIN and current_user.id != user_id:
@@ -39,7 +39,7 @@ def read_user(user_id: int, db: Session = Depends(get_db),
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
 
-@router.put("/{user_id}", response_model=User)
+@router.put("/{user_id}", response_model=User, dependencies=[Depends(role_required([UserRole.ADMIN]))])
 def update_user(user_id: int, user: UserUpdate, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_active_user)):
     if current_user.role != UserRole.ADMIN and current_user.id != user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to update this user's profile")
