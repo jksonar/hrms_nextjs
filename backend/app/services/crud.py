@@ -6,7 +6,7 @@ from typing import Optional
 
 from app.db.models import User, Employee, Department, Position, Attendance, LeaveRequest, Payroll, UserRole, EmploymentStatus, LeaveStatus, AttendanceStatus
 from app.schemas.schemas import UserCreate, UserUpdate, EmployeeCreate, EmployeeUpdate, DepartmentCreate, DepartmentUpdate, PositionCreate, PositionUpdate, AttendanceCreate, AttendanceUpdate, LeaveRequestCreate, LeaveRequestUpdate, PayrollCreate, PayrollUpdate
-from app.core.hashing import get_password_hash
+from app.core.hashing import get_password_hash, verify_password
 
 # User CRUD Operations
 def get_user(db: Session, user_id: int):

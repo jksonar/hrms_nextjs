@@ -10,7 +10,7 @@ from app.core.security import create_access_token, create_refresh_token
 from app.services.crud import authenticate_user
 from app.db.database import get_db
 from app.schemas.token import Token
-from app.schemas.schemas import User, UserCreate # Changed from app.schemas.user
+from app.schemas.schemas import User, UserCreate, UserLogin # Changed from app.schemas.user
 from app.services import crud
 
 router = APIRouter()
@@ -26,9 +26,9 @@ async def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
     user = crud.create_user(db, user=user_in)
     return user
 
-@router.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = authenticate_user(db, form_data.username, form_data.password) # form_data.username is used as email
+@router.post("/login", response_model=Token)
+async def login_for_access_token(user_in: UserLogin, db: Session = Depends(get_db)):
+    user = authenticate_user(db, user_in.email, user_in.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
