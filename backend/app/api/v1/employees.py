@@ -23,7 +23,7 @@ def create_employee(employee: EmployeeCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=List[Employee], dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER]))])
-def read_employees(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_employees(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_active_user)):
     employees = crud.get_employees(db, skip=skip, limit=limit)
     return employees
 

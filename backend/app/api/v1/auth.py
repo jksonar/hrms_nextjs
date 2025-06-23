@@ -16,7 +16,7 @@ from app.services import crud
 router = APIRouter()
 
 @router.post("/register", response_model=User)
-async def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
+def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
     user = crud.get_user_by_email(db, email=user_in.email)
     if user:
         raise HTTPException(
@@ -27,7 +27,7 @@ async def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
     return user
 
 @router.post("/login", response_model=Token)
-async def login_for_access_token(user_in: UserLogin, db: Session = Depends(get_db)):
+def login_for_access_token(user_in: UserLogin, db: Session = Depends(get_db)):
     user = authenticate_user(db, user_in.email, user_in.password)
     if not user:
         raise HTTPException(

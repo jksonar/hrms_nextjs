@@ -14,7 +14,7 @@ from app.schemas.token import TokenData
 from app.services import crud
 from app.core.hashing import verify_password, get_password_hash
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/login")
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
@@ -44,7 +44,7 @@ def authenticate_user(db: Session, email: str, password: str):
         return None
     return user
 
-async def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)) -> User:
+def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -63,13 +63,13 @@ async def get_current_user(db: Session = Depends(get_db), token: str = Depends(o
         raise credentials_exception
     return user
 
-async def get_current_active_user(current_user: User = Depends(get_current_user)):
+def get_current_active_user(current_user: User = Depends(get_current_user)):
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
 def role_required(allowed_roles: list[UserRole]):
-    async def role_checker(current_user: User = Depends(get_current_active_user)):
+    def role_checker(current_user: User = Depends(get_current_active_user)):
         if current_user.role not in allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
