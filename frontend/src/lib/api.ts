@@ -55,6 +55,7 @@ export const usersAPI = {
   getUsers: (skip = 0, limit = 100) =>
     api.get(`/users/?skip=${skip}&limit=${limit}`),
   getUser: (userId: number) => api.get(`/users/${userId}`),
+  createUser: (userData: any) => api.post('/users/', userData),
   updateUser: (userId: number, userData: any) =>
     api.put(`/users/${userId}`, userData),
   deleteUser: (userId: number) => api.delete(`/users/${userId}`),
@@ -99,6 +100,8 @@ export const positionsAPI = {
   getPositions: (skip = 0, limit = 100) =>
     api.get(`/positions/?skip=${skip}&limit=${limit}`),
   getPosition: (positionId: number) => api.get(`/positions/${positionId}`),
+  getPositionsByDepartment: (departmentId: number) =>
+    api.get(`/positions/department/${departmentId}`),
   createPosition: (positionData: any) => api.post('/positions/', positionData),
   updatePosition: (positionId: number, positionData: any) =>
     api.put(`/positions/${positionId}`, positionData),

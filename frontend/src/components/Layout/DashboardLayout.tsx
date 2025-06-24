@@ -9,6 +9,7 @@ import {
   HomeIcon,
   UsersIcon,
   BuildingOfficeIcon,
+  BriefcaseIcon,
   ClockIcon,
   DocumentTextIcon,
   CurrencyDollarIcon,
@@ -42,6 +43,12 @@ const navigation: NavigationItem[] = [
     name: 'Departments',
     href: '/dashboard/departments',
     icon: BuildingOfficeIcon,
+    roles: [UserRole.ADMIN, UserRole.HR],
+  },
+  {
+    name: 'Positions',
+    href: '/dashboard/positions',
+    icon: BriefcaseIcon,
     roles: [UserRole.ADMIN, UserRole.HR],
   },
   {

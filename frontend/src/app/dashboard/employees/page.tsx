@@ -9,9 +9,12 @@ import {
   PencilIcon,
   TrashIcon,
   MagnifyingGlassIcon,
+  UserPlusIcon,
 } from '@heroicons/react/24/outline';
-import { Employee, EmployeeCreate, Department, Position } from '@/types';
+import { Employee, EmployeeCreate, Department, Position, UserRole } from '@/types';
 import { employeesAPI, departmentsAPI, positionsAPI } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+import AdminEmployeeForm from '@/components/AdminEmployeeForm';
 import toast from 'react-hot-toast';
 
 const employeeSchema = z.object({
@@ -226,12 +229,14 @@ function EmployeeModal({ isOpen, onClose, employee, onSave, departments, positio
 }
 
 export default function EmployeesPage() {
+  const { user } = useAuth();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | undefined>();
 
   const fetchData = async () => {
@@ -294,16 +299,27 @@ export default function EmployeesPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-gray-900">Employees</h1>
-        <button
-          onClick={() => {
-            setSelectedEmployee(undefined);
-            setIsModalOpen(true);
-          }}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-        >
-          <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
-          Add Employee
-        </button>
+        <div className="flex space-x-3">
+          {user?.role === UserRole.ADMIN && (
+            <button
+              onClick={() => setIsAdminModalOpen(true)}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700"
+            >
+              <UserPlusIcon className="-ml-1 mr-2 h-5 w-5" />
+              Create Employee + User
+            </button>
+          )}
+          <button
+            onClick={() => {
+              setSelectedEmployee(undefined);
+              setIsModalOpen(true);
+            }}
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+          >
+            <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
+            Add Employee
+          </button>
+        </div>
       </div>
 
       {/* Search */}
@@ -379,6 +395,15 @@ export default function EmployeesPage() {
         departments={departments}
         positions={positions}
       />
+
+      {/* Admin Employee Form */}
+      {user?.role === UserRole.ADMIN && (
+        <AdminEmployeeForm
+          isOpen={isAdminModalOpen}
+          onClose={() => setIsAdminModalOpen(false)}
+          onSave={fetchData}
+        />
+      )}
     </div>
   );
 }
