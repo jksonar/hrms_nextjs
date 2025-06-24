@@ -1,7 +1,7 @@
 from typing import List
 
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 
 from app.core.security import get_current_active_user
@@ -9,17 +9,29 @@ from app.db.database import get_db
 from app.db.models import Employee as DBEmployee, User as DBUser, UserRole
 from app.schemas.schemas import Employee, EmployeeCreate, EmployeeUpdate
 from app.services import crud
+from app.services.rbac import can_access_employee
+from app.services.audit import log_create, log_read, log_update, log_delete
 from app.core.security import role_required
 
 router = APIRouter()
 
 
 @router.post("/", response_model=Employee, status_code=status.HTTP_201_CREATED, dependencies=[Depends(role_required([UserRole.ADMIN]))])
-def create_employee(employee: EmployeeCreate, db: Session = Depends(get_db)):
+def create_employee(employee: EmployeeCreate, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_active_user), request: Request = None):
     db_employee = crud.get_employee_by_user_id(db, user_id=employee.user_id)
     if db_employee:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Employee with this user ID already exists")
-    return crud.create_employee(db=db, employee=employee)
+    
+    new_employee = crud.create_employee(db=db, employee=employee)
+    
+    # Log the creation
+    log_create(db, current_user, "employees", new_employee.id, {
+        "employee_id": new_employee.employee_id,
+        "full_name": new_employee.full_name,
+        "department_id": new_employee.department_id
+    }, request)
+    
+    return new_employee
 
 
 @router.get("/", response_model=List[Employee], dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER]))])
@@ -37,28 +49,67 @@ def read_current_employee(current_user: DBUser = Depends(get_current_active_user
 
 
 @router.get("/{employee_id}", response_model=Employee)
-def read_employee(employee_id: int, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_active_user)):
-    if current_user.role not in [UserRole.ADMIN, UserRole.HR, UserRole.MANAGER] and \
-       (current_user.role == UserRole.EMPLOYEE and crud.get_employee_by_user_id(db, user_id=current_user.id).id != employee_id):
+def read_employee(employee_id: int, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_active_user), request: Request = None):
+    # Check RBAC permissions
+    if not can_access_employee(current_user, employee_id, db):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
+    
     employee = crud.get_employee(db, employee_id=employee_id)
     if employee is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
+    
+    # Log the read access
+    log_read(db, current_user, "employees", employee_id, {
+        "employee_id": employee.employee_id,
+        "full_name": employee.full_name
+    }, request)
+    
     return employee
 
 
 @router.put("/{employee_id}", response_model=Employee, dependencies=[Depends(role_required([UserRole.ADMIN]))])
-def update_employee(employee_id: int, employee: EmployeeUpdate, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_active_user)): 
+def update_employee(employee_id: int, employee: EmployeeUpdate, db: Session = Depends(get_db), current_user: DBUser = Depends(get_current_active_user), request: Request = None):
     db_employee = crud.get_employee(db, employee_id=employee_id)
     if db_employee is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
-    return crud.update_employee(db=db, employee_id=employee_id, employee=employee)
+    
+    # Store original data for audit log
+    original_data = {
+        "employee_id": db_employee.employee_id,
+        "full_name": db_employee.full_name,
+        "department_id": db_employee.department_id
+    }
+    
+    updated_employee = crud.update_employee(db=db, employee_id=employee_id, employee=employee)
+    
+    # Log the update
+    log_update(db, current_user, "employees", employee_id, {
+        "employee_id": updated_employee.employee_id,
+        "full_name": updated_employee.full_name,
+        "department_id": updated_employee.department_id,
+        "original_data": original_data
+    }, request)
+    
+    return updated_employee
 
 
-@router.delete("/{employee_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(role_required([UserRole.ADMIN]))])
-def delete_employee(employee_id: int, db: Session = Depends(get_db)):
-    employee = crud.get_employee(db, employee_id=employee_id)
-    if employee is None:
+@router.delete("/{employee_id}", response_model=dict)
+def delete_employee(employee_id: int, db: Session = Depends(get_db), current_user: DBUser = Depends(role_required([UserRole.ADMIN])), request: Request = None):
+    db_employee = crud.get_employee(db, employee_id=employee_id)
+    if db_employee is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
-    crud.delete_employee(db, employee_id=employee_id)
-    return {"ok": True}
+    
+    # Store data for audit log before deletion
+    deleted_data = {
+        "employee_id": db_employee.employee_id,
+        "full_name": db_employee.full_name,
+        "department_id": db_employee.department_id,
+        "email": db_employee.email
+    }
+    
+    crud.delete_employee(db=db, employee_id=employee_id)
+    
+    # Log the deletion
+    log_delete(db, current_user, "employees", employee_id, deleted_data, request)
+    
+    return {"message": "Employee deleted successfully"}

@@ -74,6 +74,12 @@ const navigation: NavigationItem[] = [
     icon: Cog6ToothIcon,
     roles: [UserRole.ADMIN],
   },
+  {
+    name: 'RBAC Demo',
+    href: '/dashboard/rbac-demo',
+    icon: Cog6ToothIcon,
+    roles: [UserRole.ADMIN, UserRole.HR, UserRole.MANAGER, UserRole.EMPLOYEE],
+  },
 ];
 
 interface DashboardLayoutProps {

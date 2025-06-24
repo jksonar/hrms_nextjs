@@ -64,20 +64,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       Cookies.set('access_token', authData.access_token, { expires: 1 });
       Cookies.set('refresh_token', authData.refresh_token, { expires: 7 });
       
-      // Decode user info from token (you might want to get this from a separate endpoint)
-      // For now, we'll make a request to get user info
+      // Get user info from /me endpoint
       try {
-        // You might need to create a /me endpoint in your backend
-        // For now, we'll store basic user info
-        const userData = {
-          id: 1, // This should come from token or separate API call
-          email: credentials.email,
-          full_name: 'User', // This should come from API
-          role: 'employee' as any, // This should come from token
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
+        const userResponse = await authAPI.getCurrentUser();
+        const userData = userResponse.data;
         
         setUser(userData);
         Cookies.set('user_data', JSON.stringify(userData), { expires: 1 });

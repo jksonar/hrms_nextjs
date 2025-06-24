@@ -43,6 +43,7 @@ export const authAPI = {
     api.post('/login', credentials),
   register: (userData: { email: string; password: string; full_name: string }) =>
     api.post('/register', userData),
+  getCurrentUser: () => api.get('/users/me'),
   logout: () => {
     Cookies.remove('access_token');
     Cookies.remove('refresh_token');
