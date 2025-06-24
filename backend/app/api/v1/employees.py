@@ -27,7 +27,7 @@ def create_employee(employee: EmployeeCreate, db: Session = Depends(get_db), cur
     # Log the creation
     log_create(db, current_user, "employees", new_employee.id, {
         "employee_id": new_employee.employee_id,
-        "full_name": new_employee.full_name,
+        "full_name": f"{new_employee.first_name} {new_employee.last_name}",
         "department_id": new_employee.department_id
     }, request)
     
@@ -61,7 +61,7 @@ def read_employee(employee_id: int, db: Session = Depends(get_db), current_user:
     # Log the read access
     log_read(db, current_user, "employees", employee_id, {
         "employee_id": employee.employee_id,
-        "full_name": employee.full_name
+        "full_name": f"{employee.first_name} {employee.last_name}"
     }, request)
     
     return employee
@@ -76,7 +76,7 @@ def update_employee(employee_id: int, employee: EmployeeUpdate, db: Session = De
     # Store original data for audit log
     original_data = {
         "employee_id": db_employee.employee_id,
-        "full_name": db_employee.full_name,
+        "full_name": f"{db_employee.first_name} {db_employee.last_name}",
         "department_id": db_employee.department_id
     }
     
@@ -85,7 +85,7 @@ def update_employee(employee_id: int, employee: EmployeeUpdate, db: Session = De
     # Log the update
     log_update(db, current_user, "employees", employee_id, {
         "employee_id": updated_employee.employee_id,
-        "full_name": updated_employee.full_name,
+        "full_name": f"{updated_employee.first_name} {updated_employee.last_name}",
         "department_id": updated_employee.department_id,
         "original_data": original_data
     }, request)
@@ -102,9 +102,9 @@ def delete_employee(employee_id: int, db: Session = Depends(get_db), current_use
     # Store data for audit log before deletion
     deleted_data = {
         "employee_id": db_employee.employee_id,
-        "full_name": db_employee.full_name,
+        "full_name": f"{db_employee.first_name} {db_employee.last_name}",
         "department_id": db_employee.department_id,
-        "email": db_employee.email
+        "email": db_employee.user.email if db_employee.user else None
     }
     
     crud.delete_employee(db=db, employee_id=employee_id)

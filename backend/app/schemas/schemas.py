@@ -2,7 +2,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import List, Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, computed_field
 
 from app.db.models import AttendanceStatus, EmploymentStatus, LeaveStatus, UserRole
 
@@ -83,6 +83,11 @@ class Employee(EmployeeBase):
     attendance_records: List["Attendance"] = []
     leave_requests: List["LeaveRequest"] = []
     payroll_records: List["Payroll"] = []
+
+    @computed_field
+    @property
+    def full_name(self) -> str:
+        return f"{self.first_name} {self.last_name}"
 
     class Config:
         from_attributes = True
