@@ -13,7 +13,7 @@ from app.core.security import role_required
 
 router = APIRouter()
 
-@router.post("/attendance/", response_model=Attendance, status_code=status.HTTP_201_CREATED, dependencies=[Depends(role_required([UserRole.ADMIN]))])
+@router.post("/", response_model=Attendance, status_code=status.HTTP_201_CREATED, dependencies=[Depends(role_required([UserRole.ADMIN]))])
 def create_attendance(attendance: AttendanceCreate, db: Session = Depends(get_db)):
     # Check if attendance already exists for this employee and date
     existing_attendance = crud.get_attendance_by_employee_and_date(db, employee_id=attendance.employee_id, date=attendance.date)
@@ -21,31 +21,31 @@ def create_attendance(attendance: AttendanceCreate, db: Session = Depends(get_db
         raise HTTPException(status_code=400, detail="Attendance already recorded for this date")
     return crud.create_attendance(db=db, attendance=attendance)
 
-@router.get("/attendance/", response_model=List[Attendance], dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER]))])
+@router.get("/", response_model=List[Attendance], dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER]))])
 def read_attendance(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     attendance_records = crud.get_attendance_records(db, skip=skip, limit=limit)
     return attendance_records
 
-@router.get("/attendance/employee/{employee_id}", response_model=List[Attendance], dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER]))])
+@router.get("/employee/{employee_id}", response_model=List[Attendance], dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER]))])
 def read_employee_attendance(employee_id: int, start_date: date = None, end_date: date = None, db: Session = Depends(get_db)):
     attendance_records = crud.get_employee_attendance(db, employee_id=employee_id, start_date=start_date, end_date=end_date)
     return attendance_records
 
-@router.get("/attendance/{attendance_id}", response_model=Attendance, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER, UserRole.EMPLOYEE]))])
+@router.get("/{attendance_id}", response_model=Attendance, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER, UserRole.EMPLOYEE]))])
 def read_attendance_record(attendance_id: int, db: Session = Depends(get_db)):
     db_attendance = crud.get_attendance(db, attendance_id=attendance_id)
     if db_attendance is None:
         raise HTTPException(status_code=404, detail="Attendance record not found")
     return db_attendance
 
-@router.put("/attendance/{attendance_id}", response_model=Attendance, dependencies=[Depends(role_required([UserRole.ADMIN]))])
+@router.put("/{attendance_id}", response_model=Attendance, dependencies=[Depends(role_required([UserRole.ADMIN]))])
 def update_attendance(attendance_id: int, attendance: AttendanceUpdate, db: Session = Depends(get_db)):
     db_attendance = crud.get_attendance(db, attendance_id=attendance_id)
     if db_attendance is None:
         raise HTTPException(status_code=404, detail="Attendance record not found")
     return crud.update_attendance(db=db, attendance_id=attendance_id, attendance=attendance)
 
-@router.post("/attendance/clock-in", dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.EMPLOYEE]))])
+@router.post("/clock-in", dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.EMPLOYEE]))])
 def clock_in(employee_id: int, db: Session = Depends(get_db)):
     today = date.today()
     existing_attendance = crud.get_attendance_by_employee_and_date(db, employee_id=employee_id, date=today)
@@ -62,7 +62,7 @@ def clock_in(employee_id: int, db: Session = Depends(get_db)):
         attendance_create = AttendanceCreate(employee_id=employee_id, date=today, clock_in=datetime.now())
         return crud.create_attendance(db=db, attendance=attendance_create)
 
-@router.post("/attendance/clock-out", dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.EMPLOYEE]))])
+@router.post("/clock-out", dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.EMPLOYEE]))])
 def clock_out(employee_id: int, db: Session = Depends(get_db)):
     today = date.today()
     existing_attendance = crud.get_attendance_by_employee_and_date(db, employee_id=employee_id, date=today)
@@ -76,7 +76,7 @@ def clock_out(employee_id: int, db: Session = Depends(get_db)):
     attendance_update = AttendanceUpdate(clock_out=datetime.now())
     return crud.update_attendance(db=db, attendance_id=existing_attendance.id, attendance=attendance_update)
 
-@router.get("/attendance/my-records", response_model=List[Attendance], dependencies=[Depends(role_required([UserRole.EMPLOYEE]))])
+@router.get("/my-records", response_model=List[Attendance], dependencies=[Depends(role_required([UserRole.EMPLOYEE]))])
 def read_my_attendance(start_date: date = None, end_date: date = None, db: Session = Depends(get_db)):
     # Get current user's employee record
     employee = crud.get_employee_by_user_id(db, user_id=current_user.id)

@@ -12,7 +12,7 @@ from app.core.security import role_required
 
 router = APIRouter()
 
-@router.post("/departments/", response_model=Department, status_code=status.HTTP_201_CREATED, dependencies=[Depends(role_required([UserRole.ADMIN]))])
+@router.post("/", response_model=Department, status_code=status.HTTP_201_CREATED, dependencies=[Depends(role_required([UserRole.ADMIN]))])
 def create_department(department: DepartmentCreate, db: Session = Depends(get_db)):
     # Check if department name already exists
     db_department = crud.get_department_by_name(db, name=department.name)
@@ -20,19 +20,19 @@ def create_department(department: DepartmentCreate, db: Session = Depends(get_db
         raise HTTPException(status_code=400, detail="Department name already exists")
     return crud.create_department(db=db, department=department)
 
-@router.get("/departments/", response_model=List[Department], dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER, UserRole.EMPLOYEE]))])
+@router.get("/", response_model=List[Department], dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER, UserRole.EMPLOYEE]))])
 def read_departments(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     departments = crud.get_departments(db, skip=skip, limit=limit)
     return departments
 
-@router.get("/departments/{department_id}", response_model=Department, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER, UserRole.EMPLOYEE]))])
+@router.get("/{department_id}", response_model=Department, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER, UserRole.EMPLOYEE]))])
 def read_department(department_id: int, db: Session = Depends(get_db)):
     db_department = crud.get_department(db, department_id=department_id)
     if db_department is None:
         raise HTTPException(status_code=404, detail="Department not found")
     return db_department
 
-@router.put("/departments/{department_id}", response_model=Department, dependencies=[Depends(role_required([UserRole.ADMIN]))])
+@router.put("/{department_id}", response_model=Department, dependencies=[Depends(role_required([UserRole.ADMIN]))])
 def update_department(department_id: int, department: DepartmentUpdate, db: Session = Depends(get_db)):
     db_department = crud.get_department(db, department_id=department_id)
     if db_department is None:
@@ -46,7 +46,7 @@ def update_department(department_id: int, department: DepartmentUpdate, db: Sess
     
     return crud.update_department(db=db, department_id=department_id, department=department)
 
-@router.delete("/departments/{department_id}", dependencies=[Depends(role_required([UserRole.ADMIN]))])
+@router.delete("/{department_id}", dependencies=[Depends(role_required([UserRole.ADMIN]))])
 def delete_department(department_id: int, db: Session = Depends(get_db)):
     db_department = crud.get_department(db, department_id=department_id)
     if db_department is None:

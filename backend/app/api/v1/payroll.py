@@ -13,7 +13,7 @@ from app.core.security import role_required
 
 router = APIRouter()
 
-@router.post("/payroll/", response_model=Payroll, status_code=status.HTTP_201_CREATED, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR]))])
+@router.post("/", response_model=Payroll, status_code=status.HTTP_201_CREATED, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR]))])
 def create_payroll(payroll: PayrollCreate, db: Session = Depends(get_db)):
     # Check if payroll already exists for this employee and period
     existing_payroll = crud.get_payroll_by_employee_and_period(db, employee_id=payroll.employee_id, start_date=payroll.pay_period_start, end_date=payroll.pay_period_end)
@@ -21,31 +21,31 @@ def create_payroll(payroll: PayrollCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Payroll already exists for this period")
     return crud.create_payroll(db=db, payroll=payroll)
 
-@router.get("/payroll/", response_model=List[Payroll], dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER]))])
+@router.get("/", response_model=List[Payroll], dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER]))])
 def read_payroll_records(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     payroll_records = crud.get_payroll_records(db, skip=skip, limit=limit)
     return payroll_records
 
-@router.get("/payroll/employee/{employee_id}", response_model=List[Payroll], dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER]))])
+@router.get("/employee/{employee_id}", response_model=List[Payroll], dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER]))])
 def read_employee_payroll(employee_id: int, year: int = None, db: Session = Depends(get_db)):
     payroll_records = crud.get_employee_payroll(db, employee_id=employee_id, year=year)
     return payroll_records
 
-@router.get("/payroll/{payroll_id}", response_model=Payroll, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER, UserRole.EMPLOYEE]))])
+@router.get("/{payroll_id}", response_model=Payroll, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR, UserRole.MANAGER, UserRole.EMPLOYEE]))])
 def read_payroll_record(payroll_id: int, db: Session = Depends(get_db)):
     db_payroll = crud.get_payroll(db, payroll_id=payroll_id)
     if db_payroll is None:
         raise HTTPException(status_code=404, detail="Payroll record not found")
     return db_payroll
 
-@router.put("/payroll/{payroll_id}", response_model=Payroll, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR]))])
+@router.put("/{payroll_id}", response_model=Payroll, dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR]))])
 def update_payroll(payroll_id: int, payroll: PayrollUpdate, db: Session = Depends(get_db)):
     db_payroll = crud.get_payroll(db, payroll_id=payroll_id)
     if db_payroll is None:
         raise HTTPException(status_code=404, detail="Payroll record not found")
     return crud.update_payroll(db=db, payroll_id=payroll_id, payroll=payroll)
 
-@router.delete("/payroll/{payroll_id}", dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR]))])
+@router.delete("/{payroll_id}", dependencies=[Depends(role_required([UserRole.ADMIN, UserRole.HR]))])
 def delete_payroll(payroll_id: int, db: Session = Depends(get_db)):
     db_payroll = crud.get_payroll(db, payroll_id=payroll_id)
     if db_payroll is None:
